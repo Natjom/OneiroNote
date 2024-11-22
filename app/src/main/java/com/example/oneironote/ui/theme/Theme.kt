@@ -1,22 +1,24 @@
 package com.example.oneironote.ui.theme
 
-import androidx.compose.runtime.Composable
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+
+
+private val DefaultShapes = Shapes() // Si nécessaire, configurez vos formes personnalisées
 
 @Composable
 fun OneironoteTheme(
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // Choisir le schéma de couleurs en fonction du thème
-    val colors = if (isDarkTheme) DarkColorScheme else LightColorScheme
+    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    // Appliquer le thème
     MaterialTheme(
         colorScheme = colors,
         typography = Typography,
+        shapes = DefaultShapes, // Ajoutez ceci pour éviter les erreurs de typage
         content = content
     )
 }
+
