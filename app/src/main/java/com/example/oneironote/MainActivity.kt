@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.oneironote.ui.*
-import com.example.oneironote.ui.Pages.*
 import com.example.oneironote.ui.theme.DarkColorScheme
 import com.example.oneironote.ui.theme.LightColorScheme
 import com.example.oneironote.ui.theme.OneironoteTheme
 import androidx.compose.material3.*
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

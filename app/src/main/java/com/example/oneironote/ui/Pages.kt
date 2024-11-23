@@ -1,28 +1,135 @@
-package com.example.oneironote.ui.Pages
+package com.example.oneironote.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.KeyboardOptions // Correct pour KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun Page1(modifier: Modifier = Modifier, colors: ColorScheme) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    // Utilisation d'une liste immuable pour le suivi des alarmes
+    var alarmList by remember { mutableStateOf(listOf<String>()) }
+
+    // Champ texte pour entrer une nouvelle alarme
+    var newAlarmTime by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Page 1", fontSize = 32.sp, color = colors.onBackground)
+        Text(
+            text = "Gérer les Réveils",
+            style = MaterialTheme.typography.titleLarge,
+            fontSize = 24.sp
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Champ pour entrer une heure
+        OutlinedTextField(
+            value = newAlarmTime,
+            onValueChange = { input ->
+                // Empêche d'entrer autre chose que des chiffres, limite à 4 caractères
+                if (input.length <= 4 && input.all { it.isDigit() }) {
+                    newAlarmTime = input
+                }
+            },
+            label = { Text("Entrez une heure (HHmm)") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Bouton pour ajouter une heure
+        Button(
+            onClick = {
+                val formattedTime = formatTime(newAlarmTime)
+                if (formattedTime != null) {
+                    alarmList = alarmList + formattedTime // Ajoute l'heure à la liste
+                    newAlarmTime = "" // Réinitialise le champ d'entrée
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = newAlarmTime.length == 4 // Active le bouton seulement quand 4 chiffres sont saisis
+        ) {
+            Text("Ajouter l'heure")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Liste des heures
+        if (alarmList.isNotEmpty()) {
+            Text(
+                text = "Liste des heures de réveil",
+                style = MaterialTheme.typography.titleMedium,
+                fontSize = 18.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(alarmList) { time ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = time,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Button(
+                            onClick = {
+                                alarmList = alarmList - time // Supprime l'heure de la liste
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text("Supprimer")
+                        }
+                    }
+                }
+            }
+        } else {
+            Text(
+                text = "Aucune heure de réveil ajoutée.",
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
+}
+
+// Fonction pour formater une entrée de type "HHmm" en "HH:mm"
+fun formatTime(input: String): String? {
+    if (input.length == 4) {
+        val hours = input.substring(0, 2).toIntOrNull()
+        val minutes = input.substring(2, 4).toIntOrNull()
+
+        if (hours in 0..23 && minutes in 0..59) {
+            return "%02d:%02d".format(hours, minutes) // Retourne le format "HH:mm"
+        }
+    }
+    return null // Retourne null si le format est invalide
 }
 
 @Composable
 fun Page2(modifier: Modifier = Modifier, colors: ColorScheme) {
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
