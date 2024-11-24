@@ -16,6 +16,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.oneironote.utils.saveAlarms
 import com.example.oneironote.utils.loadAlarms
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import com.example.oneironote.utils.getCurrentTime
 
 
 @SuppressLint("MutableCollectionMutableState")
@@ -23,12 +30,32 @@ import com.example.oneironote.utils.loadAlarms
 fun Page1(modifier: Modifier = Modifier, colors: ColorScheme, context: Context) {
     var alarmList by remember { mutableStateOf(loadAlarms(context).toMutableStateList()) }
     var newAlarmTime by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Effect to check the alarm every minute
+    LaunchedEffect(alarmList) {
+        while (true) {
+            delay(1000)
+            val currentTime = getCurrentTime().substring(0, 5) // HH:mm format
+            if (alarmList.contains(currentTime)) {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Il est $currentTime ! 🎉")
+                }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Snackbar host for messages
+        SnackbarHost(hostState = snackbarHostState)
+
         Text(
             text = "Gérer les Réveils",
             style = MaterialTheme.typography.titleLarge,

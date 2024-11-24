@@ -18,7 +18,7 @@ fun HomePage(modifier: Modifier = Modifier, colors: ColorScheme) {
     LaunchedEffect(Unit) {
         while (true) {
             currentTime = getCurrentTime()
-            delay(1000) // Correction : 1 seconde
+            delay(100) // Correction : 1 seconde
         }
     }
 

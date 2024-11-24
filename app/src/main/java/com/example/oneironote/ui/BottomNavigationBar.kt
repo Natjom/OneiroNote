@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun BottomNavigationBar(currentPage: MutableState<String>, colors: ColorScheme) {
@@ -27,31 +28,44 @@ fun BottomNavigationBar(currentPage: MutableState<String>, colors: ColorScheme) 
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavigationButton(label = "L1", onClick = { currentPage.value = "page1" })
-            NavigationButton(label = "L2", onClick = { currentPage.value = "page2" })
+            NavigationButton(
+                label = "R", onClick = { currentPage.value = "page1"},
+                colors = colors
+            )
+            NavigationButton(
+                label = "B", onClick = { currentPage.value = "page2"},
+                colors = colors
+            )
 
             Box(
                 modifier = Modifier
-                    .size(64.dp)
-                    .background(colors.primary, shape = RoundedCornerShape(32.dp))
+                    .size(50.dp)
+                    .background(colors.secondary, shape = RoundedCornerShape(32.dp))
                     .clickable { currentPage.value = "home" },
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Home", color = Color.White, fontSize = 12.sp)
+                Text(text = "H", color = Color.White, fontSize = 12.sp)
             }
 
-            NavigationButton(label = "R2", onClick = { currentPage.value = "page3" })
-            NavigationButton(label = "R1", onClick = { currentPage.value = "page4" })
+            NavigationButton(
+                label = "?", onClick = { currentPage.value = "page3" },
+                colors = colors
+            )
+            NavigationButton(
+                label = "P", onClick = { currentPage.value = "page4" },
+                colors = colors
+            )
         }
     }
 }
 
 @Composable
-fun NavigationButton(label: String, onClick: () -> Unit) {
+fun NavigationButton(label: String, onClick: () -> Unit,  colors: ColorScheme) {
     Box(
         modifier = Modifier
             .size(48.dp)
-            .background(Color.Gray, shape = RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(colors.secondary, shape = RoundedCornerShape(8.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
