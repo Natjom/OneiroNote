@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     var themeMode by remember { mutableStateOf("auto") }
     val context = LocalContext.current // Récupère le contexte Android
-
     OneironoteTheme(darkTheme = when (themeMode) {
         "light" -> false
         "dark" -> true
@@ -42,7 +41,6 @@ fun MainScreen() {
         } else {
             LightColorScheme
         }
-
         Scaffold(
             bottomBar = {
                 BottomNavigationBar(currentPage = currentPage, colors = colors)

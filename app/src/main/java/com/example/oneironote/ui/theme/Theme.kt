@@ -4,7 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 
-private val DefaultShapes = Shapes() // Si nécessaire, configurez vos formes personnalisées
+private val DefaultShapes = Shapes()
 
 @Composable
 fun OneironoteTheme(
@@ -16,8 +16,7 @@ fun OneironoteTheme(
     MaterialTheme(
         colorScheme = colors,
         typography = Typography,
-        shapes = DefaultShapes, // Ajoutez ceci pour éviter les erreurs de typage
+        shapes = DefaultShapes,
         content = content
     )
 }
-

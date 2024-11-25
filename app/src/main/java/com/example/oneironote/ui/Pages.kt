@@ -24,7 +24,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.oneironote.utils.getCurrentTime
 
-
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun Page1(modifier: Modifier = Modifier, colors: ColorScheme, context: Context) {
@@ -45,7 +44,6 @@ fun Page1(modifier: Modifier = Modifier, colors: ColorScheme, context: Context) 
             }
         }
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()

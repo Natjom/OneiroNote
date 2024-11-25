@@ -36,7 +36,6 @@ fun BottomNavigationBar(currentPage: MutableState<String>, colors: ColorScheme) 
                 label = "B", onClick = { currentPage.value = "page2"},
                 colors = colors
             )
-
             Box(
                 modifier = Modifier
                     .size(50.dp)
