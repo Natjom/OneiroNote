@@ -24,40 +24,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.oneironote.utils.getCurrentTime
 
-@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun Page1(modifier: Modifier = Modifier, colors: ColorScheme, context: Context) {
+fun Page1(
+    modifier: Modifier = Modifier,
+    colors: ColorScheme,
+    context: Context,
+    snackbarHostState: SnackbarHostState // Passez le state ici
+) {
     var alarmList by remember { mutableStateOf(loadAlarms(context).toMutableStateList()) }
     var newAlarmTime by remember { mutableStateOf("") }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope() // Pour lancer les coroutines
 
-    // Effect to check the alarm every minute
-    LaunchedEffect(alarmList) {
-        while (true) {
-            delay(1000)
-            val currentTime = getCurrentTime().substring(0, 5) // HH:mm format
-            if (alarmList.contains(currentTime)) {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Il est $currentTime ! 🎉")
-                }
-            }
-        }
-    }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .statusBarsPadding(),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Snackbar host for messages
-        SnackbarHost(hostState = snackbarHostState)
-
         Text(
             text = "Gérer les Réveils",
-            style = MaterialTheme.typography.titleLarge,
-            fontSize = 24.sp
+            style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
@@ -80,40 +66,40 @@ fun Page1(modifier: Modifier = Modifier, colors: ColorScheme, context: Context) 
                     alarmList.add(formattedTime)
                     saveAlarms(context, alarmList)
                     newAlarmTime = ""
+
+                    // Lancez une coroutine pour afficher la snackbar
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Alarme ajoutée à $formattedTime")
+                    }
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = newAlarmTime.length == 4
+            enabled = newAlarmTime.length == 4,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Ajouter l'heure")
         }
         Spacer(modifier = Modifier.height(16.dp))
         if (alarmList.isNotEmpty()) {
-            Text(
-                text = "Liste des heures de réveil",
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = 18.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(alarmList) { time ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = time,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f)
-                        )
+                        Text(text = time, style = MaterialTheme.typography.bodyLarge)
                         Button(
                             onClick = {
                                 alarmList.remove(time)
                                 saveAlarms(context, alarmList)
+
+                                // Lancez une coroutine pour afficher la snackbar
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Alarme supprimée : $time")
+                                }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                            colors = ButtonDefaults.buttonColors(containerColor = colors.error)
                         ) {
                             Text("Supprimer")
                         }
@@ -122,14 +108,16 @@ fun Page1(modifier: Modifier = Modifier, colors: ColorScheme, context: Context) 
             }
         } else {
             Text(
-                text = "Aucune heure de réveil ajoutée.",
+                text = "Aucune alarme ajoutée.",
                 style = MaterialTheme.typography.bodyMedium,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = colors.onSurfaceVariant
             )
         }
     }
 }
+
+
+
 
 fun formatTime(input: String): String? {
     if (input.length == 4) {
