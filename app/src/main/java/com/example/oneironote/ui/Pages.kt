@@ -91,10 +91,11 @@ fun Page1(
                         Text(text = time, style = MaterialTheme.typography.bodyLarge)
                         Button(
                             onClick = {
-                                alarmList.remove(time)
+                                // Crée une nouvelle liste sans l'alarme sélectionnée
+                                alarmList = alarmList.filter { it != time }.toMutableStateList()
                                 saveAlarms(context, alarmList)
 
-                                // Lancez une coroutine pour afficher la snackbar
+                                // Affiche une snackbar confirmant la suppression
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar("Alarme supprimée : $time")
                                 }

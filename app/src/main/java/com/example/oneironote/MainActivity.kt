@@ -1,6 +1,7 @@
 package com.example.oneironote
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,11 +36,10 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     var themeMode by remember { mutableStateOf("auto") }
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() } // Un état global pour les snackbars
+    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     var alarmList by remember { mutableStateOf(loadAlarms(context).toMutableStateList()) }
 
-    // Thème dynamique
     OneironoteTheme(darkTheme = when (themeMode) {
         "light" -> false
         "dark" -> true
@@ -53,38 +53,22 @@ fun MainScreen() {
             LightColorScheme
         }
 
-        // Vérification globale des alarmes
+        // Appelle la vérification des alarmes dans un LaunchedEffect avec une fonction Kotlin standard
         LaunchedEffect(alarmList) {
-            while (true) {
-                delay(100) // Vérifie toutes les secondes
-                val currentTime = getCurrentTime().substring(0, 5) // Format HH:mm
-
-                // Copie de la liste pour éviter la modification pendant l'itération
-                val alarmsToRemove = mutableListOf<String>()
-
-                for (alarm in alarmList) {
-                    if (alarm == currentTime) {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Il est $currentTime ! 🎉")
-                        }
-                        alarmsToRemove.add(alarm) // Marque l'alarme pour suppression
-                    }
-                }
-
-                // Supprime les alarmes déjà affichées
-                if (alarmsToRemove.isNotEmpty()) {
-                    alarmList.removeAll(alarmsToRemove)
-                    saveAlarms(context, alarmList) // Sauvegarde la liste mise à jour
-                }
+            checkAlarmsPeriodically(
+                context = context,
+                alarmList = alarmList,
+                snackbarHostState = snackbarHostState
+            ) { updatedAlarmList ->
+                alarmList = updatedAlarmList.toMutableStateList()
             }
         }
 
-
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
                 BottomNavigationBar(currentPage = currentPage, colors = colors)
-            },
-            snackbarHost = { SnackbarHost(snackbarHostState) } // Host global
+            }
         ) { innerPadding ->
             when (currentPage.value) {
                 "home" -> HomePage(modifier = Modifier.padding(innerPadding), colors = colors)
@@ -92,7 +76,7 @@ fun MainScreen() {
                     modifier = Modifier.padding(innerPadding),
                     colors = colors,
                     context = context,
-                    snackbarHostState = snackbarHostState // Passez cet état ici
+                    snackbarHostState = snackbarHostState
                 )
                 "page2" -> Page2(modifier = Modifier.padding(innerPadding), colors = colors)
                 "page3" -> Page3(modifier = Modifier.padding(innerPadding), colors = colors)
@@ -106,4 +90,32 @@ fun MainScreen() {
     }
 }
 
+/**
+ * Vérifie périodiquement les alarmes et met à jour leur état si nécessaire.
+ */
+suspend fun checkAlarmsPeriodically(
+    context: Context,
+    alarmList: List<String>,
+    snackbarHostState: SnackbarHostState,
+    onAlarmsUpdated: (List<String>) -> Unit
+) {
+    while (true) {
+        delay(1000) // Vérifie toutes les secondes
+        val currentTime = getCurrentTime().substring(0, 5) // Format HH:mm
+        val alarmsToRemove = mutableListOf<String>()
 
+        for (alarm in alarmList) {
+            snackbarHostState.showSnackbar("$alarm -> Il est $currentTime ! 🎉")
+            if (alarm == currentTime) {
+                snackbarHostState.showSnackbar("Il est $currentTime ! 🎉")
+                alarmsToRemove.add(alarm)
+            }
+        }
+
+        if (alarmsToRemove.isNotEmpty()) {
+            val updatedAlarms = alarmList - alarmsToRemove
+            onAlarmsUpdated(updatedAlarms)
+            saveAlarms(context, updatedAlarms)
+        }
+    }
+}
